@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReBalanceX AI - Portfolio Rebalancer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .input-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+        }
+
+        .results-section {
+            background: #f1f3f4;
+            padding: 25px;
+            border-radius: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .allocation-bars {
+            margin: 20px 0;
+        }
+
+        .allocation-item {
+            margin-bottom: 15px;
+        }
+
+        .allocation-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .bar-container {
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            transition: width 0.5s ease;
+        }
+
+        .equity-bar { background: #4CAF50; }
+        .debt-bar { background: #2196F3; }
+        .gold-bar { background: #FF9800; }
+
+        .drift-indicator {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .drift-positive { background: #ffebee; color: #c62828; }
+        .drift-negative { background: #e8f5e8; color: #2e7d32; }
+        .drift-neutral { background: #f5f5f5; color: #666; }
+
+        .ai-advice {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .ai-advice h3 {
+            margin-bottom: 10px;
+        }
+
+        .rebalance-amounts {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .amount-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .amount-item:last-child {
+            border-bottom: none;
+        }
+
+        .amount-value {
+            font-weight: bold;
+        }
+
+        .positive { color: #4CAF50; }
+        .negative { color: #f44336; }
+
+        .risk-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 14px;
+        }
+
+        .risk-conservative { background: #4CAF50; color: white; }
+        .risk-moderate { background: #FF9800; color: white; }
+        .risk-aggressive { background: #f44336; color: white; }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 ReBalanceX AI</h1>
+            <p>Intelligent Portfolio Rebalancing for Indian Investors</p>
+        </div>
+
+        <div class="main-content">
+            <div class="input-section">
+                <h2>📊 Current Portfolio</h2>
+                <form id="portfolioForm">
+                    <div class="form-group">
+                        <label for="equity">Equity Allocation (%)</label>
+                        <input type="number" id="equity" step="0.1" min="0" max="100" value="72" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="debt">Debt Allocation (%)</label>
+                        <input type="number" id="debt" step="0.1" min="0" max="100" value="18" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="gold">Gold Allocation (%)</label>
+                        <input type="number" id="gold" step="0.1" min="0" max="100" value="10" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="totalValue">Total Portfolio Value (₹)</label>
+                        <input type="number" id="totalValue" min="1000" value="500000" required>
+                    </div>
+
+                    <h3>🎯 Target Allocation</h3>
+                    
+                    <div class="form-group">
+                        <label for="equityTarget">Target Equity (%)</label>
+                        <input type="number" id="equityTarget" step="0.1" min="0" max="100" value="60" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="debtTarget">Target Debt (%)</label>
+                        <input type="number" id="debtTarget" step="0.1" min="0" max="100" value="30" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="goldTarget">Target Gold (%)</label>
+                        <input type="number" id="goldTarget" step="0.1" min="0" max="100" value="10" required>
+                    </div>
+
+                    <button type="submit" class="btn" id="analyzeBtn">
+                        🤖 Analyze with AI
+                    </button>
+                </form>
+            </div>
+
+            <div class="results-section">
+                <h2>📈 Analysis Results</h2>
+                <div id="results">
+                    <p style="text-align: center; color: #666; padding: 40px;">
+                        Enter your portfolio details and click "Analyze with AI" to get personalized recommendations.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://127.0.0.1:8000'; // Update this to your API URL
+
+        document.getElementById('portfolioForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            const resultsDiv = document.getElementById('results');
+            
+            // Get form data
+            const portfolio = {
+                equity_current: parseFloat(document.getElementById('equity').value),
+                debt_current: parseFloat(document.getElementById('debt').value),
+                gold_current: parseFloat(document.getElementById('gold').value),
+                equity_target: parseFloat(document.getElementById('equityTarget').value),
+                debt_target: parseFloat(document.getElementById('debtTarget').value),
+                gold_target: parseFloat(document.getElementById('goldTarget').value),
+                total_value: parseFloat(document.getElementById('totalValue').value)
+            };
+
+            // Validate total allocation
+            const currentTotal = portfolio.equity_current + portfolio.debt_current + portfolio.gold_current;
+            const targetTotal = portfolio.equity_target + portfolio.debt_target + portfolio.gold_target;
+            
+            if (Math.abs(currentTotal - 100) > 0.1) {
+                alert('Current allocations must sum to 100%');
+                return;
+            }
+            
+            if (Math.abs(targetTotal - 100) > 0.1) {
+                alert('Target allocations must sum to 100%');
+                return;
+            }
+
+            // Show loading
+            analyzeBtn.disabled = true;
+            analyzeBtn.textContent = '🔄 Analyzing...';
+            resultsDiv.innerHTML = '<div class="loading">🤖 AI is analyzing your portfolio...</div>';
+
+            try {
+                const response = await fetch(`${API_BASE}/analyze`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(portfolio)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Analysis failed');
+                }
+
+                const data = await response.json();
+                displayResults(data);
+
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div style="text-align: center; color: #f44336; padding: 20px;">
+                        <h3>⚠️ Analysis Error</h3>
+                        <p>Could not connect to AI service. Please check if the API server is running.</p>
+                        <p><small>Error: ${error.message}</small></p>
+                    </div>
+                `;
+            } finally {
+                analyzeBtn.disabled = false;
+                analyzeBtn.textContent = '🤖 Analyze with AI';
+            }
+        });
+
+        function displayResults(data) {
+            const resultsDiv = document.getElementById('results');
+            
+            const formatCurrency = (amount) => {
+                return new Intl.NumberFormat('en-IN', {
+                    style: 'currency',
+                    currency: 'INR',
+                    maximumFractionDigits: 0
+                }).format(amount);
+            };
+
+            const getDriftClass = (drift) => {
+                if (drift > 1) return 'drift-positive';
+                if (drift < -1) return 'drift-negative';
+                return 'drift-neutral';
+            };
+
+            const getDriftSymbol = (drift) => {
+                if (drift > 1) return '⬆️';
+                if (drift < -1) return '⬇️';
+                return '✅';
+            };
+
+            const getRiskClass = (profile) => {
+                return `risk-${profile.toLowerCase()}`;
+            };
+
+            resultsDiv.innerHTML = `
+                <div class="allocation-bars">
+                    <h3>📊 Current vs Target Allocation</h3>
+                    
+                    <div class="allocation-item">
+                        <div class="allocation-label">
+                            <span>Equity</span>
+                            <span>${data.current_allocation.equity}% / ${data.target_allocation.equity}%
+                                <span class="drift-indicator ${getDriftClass(data.drift_analysis.equity)}">
+                                    ${getDriftSymbol(data.drift_analysis.equity)} ${data.drift_analysis.equity > 0 ? '+' : ''}${data.drift_analysis.equity.toFixed(1)}%
+                                </span>
+                            </span>
+                        </div>
+                        <div class="bar-container">
+                            <div class="bar-fill equity-bar" style="width: ${data.current_allocation.equity}%"></div>
+                        </div>
+                    </div>
+
+                    <div class="allocation-item">
+                        <div class="allocation-label">
+                            <span>Debt</span>
+                            <span>${data.current_allocation.debt}% / ${data.target_allocation.debt}%
+                                <span class="drift-indicator ${getDriftClass(data.drift_analysis.debt)}">
+                                    ${getDriftSymbol(data.drift_analysis.debt)} ${data.drift_analysis.debt > 0 ? '+' : ''}${data.drift_analysis.debt.toFixed(1)}%
+                                </span>
+                            </span>
+                        </div>
+                        <div class="bar-container">
+                            <div class="bar-fill debt-bar" style="width: ${data.current_allocation.debt}%"></div>
+                        </div>
+                    </div>
+
+                    <div class="allocation-item">
+                        <div class="allocation-label">
+                            <span>Gold</span>
+                            <span>${data.current_allocation.gold}% / ${data.target_allocation.gold}%
+                                <span class="drift-indicator ${getDriftClass(data.drift_analysis.gold)}">
+                                    ${getDriftSymbol(data.drift_analysis.gold)} ${data.drift_analysis.gold > 0 ? '+' : ''}${data.drift_analysis.gold.toFixed(1)}%
+                                </span>
+                            </span>
+                        </div>
+                        <div class="bar-container">
+                            <div class="bar-fill gold-bar" style="width: ${data.current_allocation.gold}%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin: 20px 0;">
+                    <span class="risk-badge ${getRiskClass(data.risk_profile)}">
+                        ${data.risk_profile} Risk Profile
+                    </span>
+                </div>
+
+                <div class="rebalance-amounts">
+                    <h3>💰 Rebalancing Required</h3>
+                    <div class="amount-item">
+                        <span>🟢 Equity</span>
+                        <span class="amount-value ${data.rebalance_amount.equity > 0 ? 'positive' : 'negative'}">
+                            ${data.rebalance_amount.equity > 0 ? 'Buy' : 'Sell'} ${formatCurrency(Math.abs(data.rebalance_amount.equity))}
+                        </span>
+                    </div>
+                    <div class="amount-item">
+                        <span>🔵 Debt</span>
+                        <span class="amount-value ${data.rebalance_amount.debt > 0 ? 'positive' : 'negative'}">
+                            ${data.rebalance_amount.debt > 0 ? 'Buy' : 'Sell'} ${formatCurrency(Math.abs(data.rebalance_amount.debt))}
+                        </span>
+                    </div>
+                    <div class="amount-item">
+                        <span>🟡 Gold</span>
+                        <span class="amount-value ${data.rebalance_amount.gold > 0 ? 'positive' : 'negative'}">
+                            ${data.rebalance_amount.gold > 0 ? 'Buy' : 'Sell'} ${formatCurrency(Math.abs(data.rebalance_amount.gold))}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="ai-advice">
+                    <h3>🤖 AI Investment Advisor</h3>
+                    <div style="white-space: pre-line; line-height: 1.6;">
+                        ${data.ai_advice}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Auto-calculate remaining allocation
+        function setupAutoCalculation() {
+            const inputs = ['equity', 'debt', 'gold', 'equityTarget', 'debtTarget', 'goldTarget'];
+            
+            inputs.forEach(id => {
+                document.getElementById(id).addEventListener('input', function() {
+                    updateAllocationDisplay();
+                });
+            });
+        }
+
+        function updateAllocationDisplay() {
+            const current = {
+                equity: parseFloat(document.getElementById('equity').value) || 0,
+                debt: parseFloat(document.getElementById('debt').value) || 0,
+                gold: parseFloat(document.getElementById('gold').value) || 0
+            };
+
+            const target = {
+                equity: parseFloat(document.getElementById('equityTarget').value) || 0,
+                debt: parseFloat(document.getElementById('debtTarget').value) || 0,
+                gold: parseFloat(document.getElementById('goldTarget').value) || 0
+            };
+
+            const currentTotal = current.equity + current.debt + current.gold;
+            const targetTotal = target.equity + target.debt + target.gold;
+
+            // Visual feedback for totals
+            const currentInputs = ['equity', 'debt', 'gold'];
+            const targetInputs = ['equityTarget', 'debtTarget', 'goldTarget'];
+
+            currentInputs.forEach(id => {
+                const input = document.getElementById(id);
+                if (Math.abs(currentTotal - 100) > 0.1) {
+                    input.style.borderColor = '#f44336';
+                } else {
+                    input.style.borderColor = '#4CAF50';
+                }
+            });
+
+            targetInputs.forEach(id => {
+                const input = document.getElementById(id);
+                if (Math.abs(targetTotal - 100) > 0.1) {
+                    input.style.borderColor = '#f44336';
+                } else {
+                    input.style.borderColor = '#4CAF50';
+                }
+            });
+        }
+
+        // Initialize auto-calculation
+        setupAutoCalculation();
+        updateAllocationDisplay();
+
+        // Demo data button (for testing)
+        function loadDemoData() {
+            document.getElementById('equity').value = 75;
+            document.getElementById('debt').value = 15;
+            document.getElementById('gold').value = 10;
+            document.getElementById('totalValue').value = 1000000;
+            document.getElementById('equityTarget').value = 60;
+            document.getElementById('debtTarget').value = 30;
+            document.getElementById('goldTarget').value = 10;
+            updateAllocationDisplay();
+        }
+
+        // Add demo button to header (optional)
+        document.addEventListener('DOMContentLoaded', function() {
+            const header = document.querySelector('.header p');
+            header.innerHTML += '<br><button onclick="loadDemoData()" style="margin-top: 10px; padding: 8px 16px; background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); border-radius: 5px; cursor: pointer;">📋 Load Demo Data</button>';
+        });
+    </script>
+</body>
+</html>

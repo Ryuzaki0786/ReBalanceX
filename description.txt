@@ -1,0 +1,13 @@
+ReBalanceX - Intelligent Portfolio Rebalancer for Indian Investors
+
+ReBalanceX is a full-stack AI-powered portfolio rebalancer tailored for Indian retail investors. It helps users detect portfolio drift, provides buy/sell rebalancing suggestions, and generates personalized advice using GPT-4.
+
+Key Features:
+- Clean and interactive frontend built with HTML, CSS, and vanilla JavaScript
+- FastAPI backend with endpoints for portfolio analysis and AI advisory
+- GPT-4 integration for natural language rebalancing guidance
+- ML-based risk classification trained on synthetic portfolio data
+- Market data fetcher using yFinance
+- Real-time rebalancing logic with drift indicators and visual feedback
+
+Ideal for investors who want clarity, control, and AI-backed investment decisions.

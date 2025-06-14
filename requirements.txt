@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+pydantic
+openai
+pandas
+numpy
+scikit-learn
+yfinance
+# Optional dependencies for additional features
+# Uncomment the following lines if you want to include these optional dependencies
+pip install -r requirements.txt
