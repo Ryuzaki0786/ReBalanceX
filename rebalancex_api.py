@@ -48,7 +48,7 @@ class RebalanceAdvice(BaseModel):
     risk_profile: str
     rebalance_amount: Dict[str, float]
 
-# Option A: GPT-based Natural Language Advisor
+# GPT-based Natural Language Advisor
 class GPTAdvisor:
     def __init__(self):
         self.client = openai
@@ -99,7 +99,7 @@ class GPTAdvisor:
         except Exception as e:
             return f"AI advisor temporarily unavailable. Manual analysis: {'Overweight equity' if equity_drift > 5 else 'Portfolio within acceptable drift ranges'}."
 
-# Option B: ML-Based Portfolio Analyzer (Foundation)
+# ML-Based Portfolio Analyzer (Foundation)
 class MLPortfolioAnalyzer:
     def __init__(self):
         self.risk_classifier = None
@@ -353,4 +353,5 @@ if __name__ == "__main__":
     ml_analyzer.train_models()
     print("ML models trained successfully!")
     
+
     uvicorn.run(app, host="0.0.0.0", port=8000)
