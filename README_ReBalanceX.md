@@ -1,6 +1,6 @@
-# 🎯 ReBalanceX – AI-Powered Portfolio Rebalancer for Indian Investors
+# ReBalanceX – AI-Powered Portfolio Rebalancer for Indian Investors
 
-## 🔍 The Problem
+## The Problem
 In India, millions of retail investors actively participate in equity markets, mutual funds, and gold-based assets. While these investors often start with a target asset allocation (e.g., 60% equity, 30% debt, 10% gold), they rarely rebalance their portfolios, leading to:
 
 - Overexposure to market volatility  
@@ -12,7 +12,7 @@ The existing solutions for rebalancing are either locked inside premium wealth a
 
 ---
 
-## 🎯 The Solution – ReBalanceX
+## The Solution – ReBalanceX
 ReBalanceX is an AI-powered web application that helps Indian retail investors:
 
 - Analyze their current portfolio against target allocation  
@@ -23,7 +23,7 @@ ReBalanceX is an AI-powered web application that helps Indian retail investors:
 
 ---
 
-## 👥 Target Users / Clients
+## Target Users / Clients
 - Retail investors managing portfolios via Zerodha, Groww, Upstox, etc.  
 - Young professionals starting SIPs but unsure about balancing equity vs debt  
 - HNI & DIY investors who want intelligent, tax-aware rebalancing  
@@ -32,16 +32,16 @@ ReBalanceX is an AI-powered web application that helps Indian retail investors:
 
 ---
 
-## 💡 What Makes It Stand Out
-- 🤖 GPT-4 backed AI Advisor for human-like guidance  
-- 🧠 ML-powered risk profile classification  
-- ⚙️ FastAPI-based backend API for scalable performance  
-- 🎨 Fully responsive HTML/CSS/JS frontend for clean UX  
-- 📈 Real-time integration with market data  
+## What Makes It Stand Out
+- GPT-4 backed AI Advisor for human-like guidance  
+- ML-powered risk profile classification  
+- FastAPI-based backend API for scalable performance  
+- Fully responsive HTML/CSS/JS frontend for clean UX  
+- Real-time integration with market data  
 
 ---
 
-## 🌱 Future Vision
+## Future Vision
 > “ReBalanceX is not just a tool — it’s the foundation of a new kind of digital advisor that empowers Indian investors to make rational, personalized, and tax-efficient decisions.”
 
 Planned future enhancements:
@@ -62,7 +62,7 @@ Planned future enhancements:
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 1. Run the backend:
 ```bash
 uvicorn rebalancex_api:app --reload
@@ -77,10 +77,10 @@ python -m http.server 8001
 
 ---
 
-## 📄 License
+## License
 MIT License
 
 ---
 
-## ✨ Author
+## Author
 Built by [Ekam Bhullar] – making quant tools that solve real problems.
